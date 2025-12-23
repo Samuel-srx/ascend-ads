@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Phone, Mail, MapPin, CheckCircle, Loader2 } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
@@ -11,31 +12,53 @@ export default function ContactSection() {
     budget: '',
     message: '',
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // reCAPTCHA
+  const recaptchaRef = useRef(null);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+  const handleCaptchaChange = (token) => {
+    setCaptchaToken(token);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔒 Bloqueia bots: se não marcou o captcha, não envia
+    if (!captchaToken) {
+      alert('Confirme que você não é um robô.');
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     setIsSubmitting(false);
     setIsSubmitted(true);
-    
+
     // Aqui você pode integrar com sua API depois
     console.log('Form data:', formData);
-    
+
     // WhatsApp integration
     const message = `Olá! Sou ${formData.name} da empresa ${formData.company}. ${formData.message}. Investimento: ${formData.budget}. Contato: ${formData.email} | ${formData.phone}`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, '_blank');
+
+    // (Opcional) Resetar captcha após enviar
+    try {
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
+    } catch {}
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -43,7 +66,7 @@ export default function ContactSection() {
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/30 to-transparent" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl" />
-      
+
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left - Info */}
@@ -55,14 +78,14 @@ export default function ContactSection() {
             <span className="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-semibold mb-6">
               Vamos conversar
             </span>
-            
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
               Pronto para{' '}
               <span className="block bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
                 escalar?
               </span>
             </h2>
-            
+
             <p className="text-xl text-slate-400 mb-12 leading-relaxed">
               Entre em contato e descubra como podemos transformar seus investimentos em ads em resultados reais para o seu negócio.
             </p>
@@ -129,7 +152,7 @@ export default function ContactSection() {
                         required
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label htmlFor="email" className="block text-slate-300 text-sm font-medium">
                         E-mail
@@ -160,7 +183,7 @@ export default function ContactSection() {
                         className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label htmlFor="company" className="block text-slate-300 text-sm font-medium">
                         Empresa
@@ -210,9 +233,24 @@ export default function ContactSection() {
                     />
                   </div>
 
+                  {/* ✅ reCAPTCHA */}
+                  <div className="pt-2">
+                    {!SITE_KEY ? (
+                      <p className="text-sm text-red-400">
+                        Falta configurar a variável <b>VITE_RECAPTCHA_SITE_KEY</b> no arquivo <b>.env.local</b>.
+                      </p>
+                    ) : (
+                      <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey={SITE_KEY}
+                        onChange={handleCaptchaChange}
+                      />
+                    )}
+                  </div>
+
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !captchaToken || !SITE_KEY}
                     className="w-full bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white font-semibold py-4 px-6 rounded-lg shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
@@ -227,6 +265,10 @@ export default function ContactSection() {
                       </span>
                     )}
                   </button>
+
+                  <p className="text-xs text-slate-500">
+                    Ao enviar, você confirma que não é um robô. (Protegido por reCAPTCHA)
+                  </p>
                 </form>
               )}
             </div>

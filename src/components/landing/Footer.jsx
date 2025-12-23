@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Facebook } from 'lucide-react';  // Remova Instagram, Linkedin, Youtube
+import { TrendingUp, Facebook } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -14,35 +14,39 @@ export default function Footer() {
               </div>
               <span className="text-xl font-bold text-white">Ascend Ads</span>
             </div>
-            
+
             <p className="text-slate-400 mb-6 max-w-sm">
               Tráfego pago e publicidade digital focados em crescimento estratégico. Transformamos investimento em resultados.
             </p>
-            
+
             <div className="flex gap-4">
-  <a
-    href="https://www.facebook.com/share/1Brfzr5NVU/"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Facebook da Ascend Ads"
-    className="p-2 rounded-lg bg-slate-800 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 transition-colors"
-  >
-    <Facebook className="w-5 h-5" />
-  </a>
-</div>
+              <a
+                href="https://www.facebook.com/share/1Brfzr5NVU/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook da Ascend Ads"
+                className="p-2 rounded-lg bg-slate-800 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 transition-colors"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+            </div>
           </div>
 
           {/* Links */}
           <div>
             <h4 className="text-white font-semibold mb-4">Links rápidos</h4>
             <ul className="space-y-3">
-              {['Serviços', 'Resultados', 'Sobre', 'Blog', 'Contato'].map((link) => (
-                <li key={link}>
+              {[
+                { label: 'Serviços', href: '#servicos' },
+                { label: 'Resultados', href: '#resultados' },
+                { label: 'Contato', href: '#contato' },
+              ].map((item) => (
+                <li key={item.label}>
                   <a
-                    href={`#${link.toLowerCase()}`}
+                    href={item.href}
                     className="text-slate-400 hover:text-indigo-400 transition-colors"
                   >
-                    {link}
+                    {item.label}
                   </a>
                 </li>
               ))}
@@ -71,12 +75,23 @@ export default function Footer() {
           <p className="text-slate-500 text-sm">
             © {new Date().getFullYear()} Ascend Ads. Todos os direitos reservados.
           </p>
-          
+
           <div className="flex gap-6 text-sm">
-            <a href="#" className="text-slate-500 hover:text-slate-400 transition-colors">
+            <a
+              href="/privacidade.html"
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-500 hover:text-slate-400 transition-colors"
+            >
               Política de Privacidade
             </a>
-            <a href="#" className="text-slate-500 hover:text-slate-400 transition-colors">
+
+            <a
+              href="/termos.html"
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-500 hover:text-slate-400 transition-colors"
+            >
               Termos de Uso
             </a>
           </div>
