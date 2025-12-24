@@ -28,7 +28,7 @@ export default function ContactSection() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔒 Bloqueia bots: se não marcou o captcha, não envia
+    // 🔒 Bloqueia bots
     if (!captchaToken) {
       alert('Confirme que você não é um robô.');
       return;
@@ -36,25 +36,46 @@ export default function ContactSection() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-
-    // Aqui você pode integrar com sua API depois
-    console.log('Form data:', formData);
-
-    // WhatsApp integration
-    const message = `Olá! Sou ${formData.name} da empresa ${formData.company}. ${formData.message}. Investimento: ${formData.budget}. Contato: ${formData.email} | ${formData.phone}`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, '_blank');
-
-    // (Opcional) Resetar captcha após enviar
     try {
-      recaptchaRef.current?.reset();
-      setCaptchaToken(null);
-    } catch {}
+      const res = await fetch("/api/lead", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    formData,
+    captchaToken, // ✅ agora bate com o backend
+  }),
+});
+
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok || !json.ok) {
+        alert('Erro ao enviar o formulário. Tente novamente.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // ✅ Sucesso
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+
+      // WhatsApp integration (abre depois do server confirmar)
+      const message = `Olá! Sou ${formData.name} da empresa ${formData.company}. ${formData.message}. Investimento: ${formData.budget}. Contato: ${formData.email} | ${formData.phone}`;
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, '_blank');
+
+      // Reset captcha após enviar
+      try {
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
+      } catch {}
+    } catch (err) {
+      console.error(err);
+      alert('Falha de rede ao enviar. Verifique sua conexão e tente novamente.');
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field, value) => {
@@ -240,11 +261,7 @@ export default function ContactSection() {
                         Falta configurar a variável <b>VITE_RECAPTCHA_SITE_KEY</b> no arquivo <b>.env.local</b>.
                       </p>
                     ) : (
-                      <ReCAPTCHA
-                        ref={recaptchaRef}
-                        sitekey={SITE_KEY}
-                        onChange={handleCaptchaChange}
-                      />
+                      <ReCAPTCHA ref={recaptchaRef} sitekey={SITE_KEY} onChange={handleCaptchaChange} />
                     )}
                   </div>
 
