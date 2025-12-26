@@ -1,9 +1,11 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { formData, recaptchaToken } = req.body || {};
+  const body = req.body || {};
+  const formData = body.formData;
+  const token = body.recaptchaToken || body.captchaToken; // aceita os dois
 
-  if (!formData || !recaptchaToken) {
+  if (!formData || !token) {
     return res.status(400).json({ ok: false, error: "missing_data" });
   }
 
