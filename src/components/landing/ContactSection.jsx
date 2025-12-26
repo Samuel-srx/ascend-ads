@@ -45,17 +45,24 @@ export default function ContactSection() {
 
     setIsSubmitting(true);
 
-    try {
-      const eventId = generateEventId();
+    let eventId = "";
 
-      const res = await fetch("/api/lead", {
+    try {
+    const eventId = generateEventId();
+
+const res = await fetch("/api/lead", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     formData,
     recaptchaToken: captchaToken,
+    event_id: eventId,
+    event_source_url: window.location.href,
+    fbp: getCookie("_fbp"),
+    fbc: getCookie("_fbc"),
   }),
 });
+
 
 
       const json = await res.json().catch(() => ({}));
