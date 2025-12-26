@@ -35,6 +35,13 @@ export default function ContactSection() {
     return match ? decodeURIComponent(match[2]) : "";
   };
 
+  const normalizeText = (text = "") =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove acentos
+    .replace(/[^\x00-\x7F]/g, "");   // remove emojis
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -95,25 +102,26 @@ export default function ContactSection() {
       });
 
       // WhatsApp integration (abre depois do server confirmar)
-const lines = [
-  "🚀 *Novo Lead — Ascend Ads*",
-  "",
-  `👤 *Nome:* ${oldForm.name}`,
-  oldForm.company ? `🏢 *Empresa:* ${oldForm.company}` : null,
-  oldForm.phone ? `📞 *Telefone:* ${oldForm.phone}` : null,
-  `📧 *Email:* ${oldForm.email}`,
-  "",
-  oldForm.budget ? `💰 *Investimento mensal:* ${oldForm.budget}` : null,
-  "",
-  "📝 *Mensagem:*",
-  oldForm.message,
-  "",
-  `🌐 *Página:* ${window.location.href}`,
-].filter(Boolean);
+const message = `
+SOLICITAÇÃO DE CONTATO - ASCEND ADS
 
-const message = lines.join("\n");
+Nome: ${normalizeText(oldForm.name)}
+Empresa: ${normalizeText(oldForm.company)}
+Telefone: ${oldForm.phone}
+Email: ${oldForm.email}
+
+Investimento mensal: ${normalizeText(oldForm.budget)}
+
+Mensagem:
+${normalizeText(oldForm.message)}
+
+Pagina:
+https://www.ascendads.com.br
+`;
+
 const encodedMessage = encodeURIComponent(message);
 window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, "_blank");
+
 
     } catch (err) {
       console.error(err);
