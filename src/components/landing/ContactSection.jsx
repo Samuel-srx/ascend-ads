@@ -1,16 +1,16 @@
-import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Phone, Mail, MapPin, CheckCircle, Loader2 } from 'lucide-react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import { Send, Phone, Mail, MapPin, CheckCircle, Loader2 } from "lucide-react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    budget: '',
-    message: '',
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    budget: "",
+    message: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,49 +26,50 @@ export default function ContactSection() {
   };
 
   const generateEventId = () => {
-  // id simples e único (bom o suficiente pra deduplicação)
-  return `lead_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    // id simples e único (bom o suficiente pra deduplicação)
+    return `lead_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   };
 
+  const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return match ? decodeURIComponent(match[2]) : "";
+  };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
     if (isSubmitting) return;
 
-
     // 🔒 Bloqueia bots
     if (!captchaToken) {
-      alert('Confirme que você não é um robô.');
+      alert("Confirme que você não é um robô.");
       return;
     }
 
     setIsSubmitting(true);
 
-    let eventId = "";
-
     try {
-    const eventId = generateEventId();
+      const eventId = generateEventId();
 
-const res = await fetch("/api/lead", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    formData,
-    recaptchaToken: captchaToken,
-    event_id: eventId,
-    event_source_url: window.location.href,
-    fbp: getCookie("_fbp"),
-    fbc: getCookie("_fbc"),
-  }),
-});
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formData,
+          recaptchaToken: captchaToken,
 
-
+          // ✅ Meta CAPI extras
+          event_id: eventId,
+          event_source_url: window.location.href,
+          fbp: getCookie("_fbp"),
+          fbc: getCookie("_fbc"),
+        }),
+      });
 
       const json = await res.json().catch(() => ({}));
 
       if (!res.ok || !json.ok) {
-        alert('Erro ao enviar o formulário. Tente novamente.');
+        console.error("API /lead failed:", json);
+        alert("Erro ao enviar o formulário. Tente novamente.");
         setIsSubmitting(false);
         return;
       }
@@ -77,29 +78,34 @@ const res = await fetch("/api/lead", {
       setIsSubmitting(false);
       setIsSubmitted(true);
 
-      setFormData({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    budget: '',
-    message: '',
-  });
-
-
-      // WhatsApp integration (abre depois do server confirmar)
-      const message = `Olá! Sou ${formData.name} da empresa ${formData.company}. ${formData.message}. Investimento: ${formData.budget}. Contato: ${formData.email} | ${formData.phone}`;
-      const encodedMessage = encodeURIComponent(message);
-      window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, '_blank');
-
       // Reset captcha após enviar
       try {
         recaptchaRef.current?.reset();
         setCaptchaToken(null);
       } catch {}
+
+      // Limpa formulário
+      const oldForm = formData; // guarda pra msg do Whats
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        budget: "",
+        message: "",
+      });
+
+      // WhatsApp integration (abre depois do server confirmar)
+      const message =
+        `Olá! Sou ${oldForm.name} da empresa ${oldForm.company}. ` +
+        `${oldForm.message}. Investimento: ${oldForm.budget}. ` +
+        `Contato: ${oldForm.email} | ${oldForm.phone}`;
+
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, "_blank");
     } catch (err) {
       console.error(err);
-      alert('Falha de rede ao enviar. Verifique sua conexão e tente novamente.');
+      alert("Falha de rede ao enviar. Verifique sua conexão e tente novamente.");
       setIsSubmitting(false);
     }
   };
@@ -127,7 +133,7 @@ const res = await fetch("/api/lead", {
             </span>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Pronto para{' '}
+              Pronto para{" "}
               <span className="block bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
                 escalar?
               </span>
@@ -139,9 +145,9 @@ const res = await fetch("/api/lead", {
 
             <div className="space-y-6">
               {[
-                { icon: Phone, label: 'Telefone', value: '+55 11 99848-3915' },
-                { icon: Mail, label: 'E-mail', value: 'ascendads0@gmail.com' },
-                { icon: MapPin, label: 'Localização', value: '100% Digital - Atendimento Online' },
+                { icon: Phone, label: "Telefone", value: "+55 11 99848-3915" },
+                { icon: Mail, label: "E-mail", value: "ascendads0@gmail.com" },
+                { icon: MapPin, label: "Localização", value: "100% Digital - Atendimento Online" },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -194,7 +200,7 @@ const res = await fetch("/api/lead", {
                         type="text"
                         placeholder="Seu nome"
                         value={formData.name}
-                        onChange={(e) => handleChange('name', e.target.value)}
+                        onChange={(e) => handleChange("name", e.target.value)}
                         className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                         required
                       />
@@ -209,7 +215,7 @@ const res = await fetch("/api/lead", {
                         type="email"
                         placeholder="seu@email.com"
                         value={formData.email}
-                        onChange={(e) => handleChange('email', e.target.value)}
+                        onChange={(e) => handleChange("email", e.target.value)}
                         className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                         required
                       />
@@ -226,7 +232,7 @@ const res = await fetch("/api/lead", {
                         type="tel"
                         placeholder="(00) 00000-0000"
                         value={formData.phone}
-                        onChange={(e) => handleChange('phone', e.target.value)}
+                        onChange={(e) => handleChange("phone", e.target.value)}
                         className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                       />
                     </div>
@@ -240,7 +246,7 @@ const res = await fetch("/api/lead", {
                         type="text"
                         placeholder="Nome da empresa"
                         value={formData.company}
-                        onChange={(e) => handleChange('company', e.target.value)}
+                        onChange={(e) => handleChange("company", e.target.value)}
                         className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                       />
                     </div>
@@ -253,7 +259,7 @@ const res = await fetch("/api/lead", {
                     <select
                       id="budget"
                       value={formData.budget}
-                      onChange={(e) => handleChange('budget', e.target.value)}
+                      onChange={(e) => handleChange("budget", e.target.value)}
                       className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                     >
                       <option value="">Selecione uma faixa</option>
@@ -273,7 +279,7 @@ const res = await fetch("/api/lead", {
                       id="message"
                       placeholder="Conte-nos sobre seu projeto e objetivos..."
                       value={formData.message}
-                      onChange={(e) => handleChange('message', e.target.value)}
+                      onChange={(e) => handleChange("message", e.target.value)}
                       rows="4"
                       className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
                       required
