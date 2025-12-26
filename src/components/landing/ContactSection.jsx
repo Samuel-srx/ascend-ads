@@ -95,13 +95,26 @@ export default function ContactSection() {
       });
 
       // WhatsApp integration (abre depois do server confirmar)
-      const message =
-        `Olá! Sou ${oldForm.name} da empresa ${oldForm.company}. ` +
-        `${oldForm.message}. Investimento: ${oldForm.budget}. ` +
-        `Contato: ${oldForm.email} | ${oldForm.phone}`;
+const lines = [
+  "🚀 *Novo Lead — Ascend Ads*",
+  "",
+  `👤 *Nome:* ${oldForm.name}`,
+  oldForm.company ? `🏢 *Empresa:* ${oldForm.company}` : null,
+  oldForm.phone ? `📞 *Telefone:* ${oldForm.phone}` : null,
+  `📧 *Email:* ${oldForm.email}`,
+  "",
+  oldForm.budget ? `💰 *Investimento mensal:* ${oldForm.budget}` : null,
+  "",
+  "📝 *Mensagem:*",
+  oldForm.message,
+  "",
+  `🌐 *Página:* ${window.location.href}`,
+].filter(Boolean);
 
-      const encodedMessage = encodeURIComponent(message);
-      window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, "_blank");
+const message = lines.join("\n");
+const encodedMessage = encodeURIComponent(message);
+window.open(`https://wa.me/5511998483915?text=${encodedMessage}`, "_blank");
+
     } catch (err) {
       console.error(err);
       alert("Falha de rede ao enviar. Verifique sua conexão e tente novamente.");
