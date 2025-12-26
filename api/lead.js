@@ -1,4 +1,5 @@
-const crypto = require("crypto");
+import crypto from "crypto";
+
 
 /**
  * Helpers
@@ -33,7 +34,10 @@ function parseCookies(cookie = "") {
 /**
  * Handler
  */
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
+
+}
+
   try {
     if (req.method !== "POST") {
       return res.status(405).json({ ok: false, error: "method_not_allowed" });
@@ -129,5 +133,4 @@ module.exports = async function handler(req, res) {
       error: "server_crash",
       message: err.message,
     });
-  }
-};
+  };
