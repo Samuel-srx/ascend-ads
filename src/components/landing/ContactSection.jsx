@@ -27,6 +27,8 @@ export default function ContactSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
 
     // 🔒 Bloqueia bots
     if (!captchaToken) {
@@ -58,6 +60,16 @@ export default function ContactSection() {
       // ✅ Sucesso
       setIsSubmitting(false);
       setIsSubmitted(true);
+
+      setFormData({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    budget: '',
+    message: '',
+  });
+
 
       // WhatsApp integration (abre depois do server confirmar)
       const message = `Olá! Sou ${formData.name} da empresa ${formData.company}. ${formData.message}. Investimento: ${formData.budget}. Contato: ${formData.email} | ${formData.phone}`;
