@@ -76,13 +76,13 @@ export default async function handler(req, res) {
     const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN; // adicione no Vercel
     const TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE || ""; // opcional (pra aba "Eventos de teste")
 
-    if (!META_PIXEL_ID || !META_ACCESS_TOKEN) {
+    // if (!META_PIXEL_ID || !META_ACCESS_TOKEN) {
       // se faltar, ainda confirmamos recebimento do lead, mas avisamos
-      return res.status(200).json({
-        ok: true,
-        warning: "meta_env_missing",
-      });
-    }
+      // return res.status(200).json({
+       // ok: true,
+      //  warning: "meta_env_missing",
+      //});
+    // }
 
     const client_ip_address = getClientIp(req);
     const client_user_agent = req.headers["user-agent"] || "";
