@@ -1,4 +1,6 @@
 import crypto from "crypto";
+import fetch from "node-fetch";
+
 
 function sha256(input) {
   return crypto.createHash("sha256").update(input).digest("hex");
