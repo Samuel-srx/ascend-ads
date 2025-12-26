@@ -51,19 +51,18 @@ export default function ContactSection() {
       const eventId = generateEventId();
 
       const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          formData,
-          recaptchaToken: captchaToken,
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+    formData,
+    recaptchaToken: captchaToken,
+    event_id: eventId,
+    event_source_url: window.location.href,
+    fbp: getCookie("_fbp"),
+    fbc: getCookie("_fbc"),
+    }),
+  });
 
-          // ✅ Meta CAPI extras
-          event_id: eventId,
-          event_source_url: window.location.href,
-          fbp: getCookie("_fbp"),
-          fbc: getCookie("_fbc"),
-        }),
-      });
 
       const json = await res.json().catch(() => ({}));
 
