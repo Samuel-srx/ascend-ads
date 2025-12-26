@@ -25,7 +25,14 @@ export default function ContactSection() {
     setCaptchaToken(token);
   };
 
+  const generateEventId = () => {
+  // id simples e único (bom o suficiente pra deduplicação)
+  return `lead_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  };
+
+
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     if (isSubmitting) return;
 
@@ -39,6 +46,8 @@ export default function ContactSection() {
     setIsSubmitting(true);
 
     try {
+      const eventId = generateEventId();
+
       const res = await fetch("/api/lead", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
