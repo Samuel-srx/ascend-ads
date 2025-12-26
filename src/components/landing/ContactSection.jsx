@@ -39,12 +39,10 @@ export default function ContactSection() {
     try {
       const res = await fetch("/api/lead", {
   method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     formData,
-    captchaToken, // ✅ agora bate com o backend
+    recaptchaToken: captchaToken, // ✅ AQUI
   }),
 });
 
