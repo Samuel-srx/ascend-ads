@@ -42,7 +42,7 @@ export default function ContactSection() {
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     formData,
-    recaptchaToken: captchaToken, // ✅ AQUI
+    recaptchaToken: captchaToken,
   }),
 });
 
